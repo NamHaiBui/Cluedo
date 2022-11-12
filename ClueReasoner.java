@@ -225,12 +225,97 @@ public class ClueReasoner
                         String card3, String refuter, String cardShown) 
     {
         // TO BE IMPLEMENTED AS AN EXERCISE
+        int suggesterNum = getPlayerNum(suggester);
+        int refuterNum = 0;
+        if(refuter != null) {
+            refuterNum = getPlayerNum(refuter);
+        }
+
+        // The suggester must not have one of the card 1,2,3
+        // int[] clause = new int[3];
+        // clause[0] = -getPairNum(suggester, card1);
+        // clause[1] = -getPairNum(suggester, card2);
+        // clause[2] = -getPairNum(suggester, card3);
+        // solver.addClause(clause);
+
+        // Case 1: There is no refuter.
+        // Then no OTHER Player have card 1,2,3
+        if (refuter == null) {
+            for(String player: players ){
+                int[] clause = new int[1];
+                if (!player.equals(suggester)) {
+                    clause[0] = -getPairNum(player,card1);
+                    solver.addClause(clause);
+                    clause[0] = -getPairNum(player,card2);
+                    solver.addClause(clause);
+                    clause[0] = -getPairNum(player,card3);
+                    solver.addClause(clause);
+                } 
+            } 
+        }
+
+        // Case2: There is a refuter.
+        if (refuter != null) {
+
+            // The between players dont have card 1,2,3
+            int i = ++suggesterNum%numPlayers;
+            int[] clause = new int[1];
+            while (i!=refuterNum) {
+                clause[0] = -getPairNum(players[i],card1);
+                solver.addClause(clause);
+                clause[0] = -getPairNum(players[i],card2);
+                solver.addClause(clause);
+                clause[0] = -getPairNum(players[i],card3);
+                solver.addClause(clause);
+                i = ++i%numPlayers;        
+            };
+
+            // If the card is shown.
+            if (cardShown != null) {               
+                // Then the refuter has the card
+                clause = new int[1];
+                clause[0] = getPairNum(refuter,cardShown);
+                solver.addClause(clause);
+                // The case file doesn't have the card
+                clause[0] = -getPairNum("cf",cardShown);
+                solver.addClause(clause);
+            }
+
+            // If the card is not shown
+            if (cardShown == null) {
+                clause = new int[3];
+                clause[0] = getPairNum(refuter,card1);
+                clause[1] = getPairNum(refuter,card2);
+                clause[2] = getPairNum(refuter,card3);
+                solver.addClause(clause);
+            }
+        }
+
     }
 
     public void accuse(String accuser, String card1, String card2, 
                        String card3, boolean isCorrect)
     {
         // TO BE IMPLEMENTED AS AN EXERCISE
+        // If the accusation is correct
+        if (isCorrect) {
+            // Then the case file has card 1,2,3
+            int[] clause = new int[1];
+            clause[0] = getPairNum("cf",card1);
+            solver.addClause(clause);
+            clause[0] = getPairNum("cf",card2);
+            solver.addClause(clause);
+            clause[0] = getPairNum("cf",card3);
+            solver.addClause(clause);
+        } else { // If the accusation is not correct.
+            int[] clause = new int[1];
+            clause[0] = -getPairNum("cf",card1);
+            solver.addClause(clause);
+            clause[0] = -getPairNum("cf",card2);
+            solver.addClause(clause);
+            clause[0] = -getPairNum("cf",card3);
+            solver.addClause(clause);
+        }
     }
 
     public int query(String player, String card) 
