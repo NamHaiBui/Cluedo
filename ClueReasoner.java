@@ -199,6 +199,8 @@ public class ClueReasoner {
         }
         // At least one card of each category is in the case file. That is we add clause
         // for each categories: weaons, suspect, rooms
+        // For each category
+        // For case file player 'cf', for all card c, there is ('cf',c)
         // Weapon
         int[] clause = new int[weapons.length];
         for (int c = 0; c < weapons.length; c++) {
